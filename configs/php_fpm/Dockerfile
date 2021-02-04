@@ -1,0 +1,80 @@
+FROM  php:7.4-fpm-alpine
+
+#RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
+#&& echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
+#&& echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+
+RUN apk update && apk upgrade \
+&& apk add --no-cache \
+    autoconf \
+    g++ \
+    libtool \
+    make \
+    libxml2-dev \
+    libpng-dev \
+    imap-dev \
+    postgresql-dev \
+&& docker-php-ext-install \
+    soap \
+    bcmath \
+    gd \
+    imap \
+    pcntl \
+    mysqli \
+    pdo_pgsql \
+    pdo_mysql \
+&& pecl install xdebug \
+&& docker-php-ext-enable xdebug \
+&& pecl install redis \
+&& docker-php-ext-enable redis \
+&& apk del \
+    gcc \
+    musl-dev \
+    php7-pear \
+    php7-dev \
+    autoconf \
+    libtool \
+    automake \
+    g++ \
+    make \
+    byacc \
+    flex \
+    git \
+&& set -eux; addgroup -g 1000 -S local; adduser --u 1000 -D -S -G local local; sed -i s/www-data/local/g /usr/local/etc/php-fpm.d/www.conf \
+&& apk add py-pip \
+&& apk add supervisor
+
+ADD conf/laravel-queue.ini conf/php-fpm.ini /etc/supervisor.d/
+
+WORKDIR /var/www/html
+
+CMD ["supervisord", "-n"]
+
+
+
+
+
+
+
+#    php7-soap \
+#    php7-bcmath \
+#    php7-gd \
+#    php7-imap \
+#    php7-pcntl \
+#    php7-xdebug \
+#    php7-pear \
+#    php7-dev \
+
+
+
+
+
+
+
+#&& cp /etc/php7/conf.d/02_pdo_mysql.ini /usr/local/etc/php/conf.d \
+#&& cp /usr/lib/php7/modules/pdo_mysql.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902 \
+
+
+
+#&& apk add --no-cache gcc musl-dev make unzip zip autoconf libtool automake g++ libffi-dev openssl-dev byacc flex composer git \
+
